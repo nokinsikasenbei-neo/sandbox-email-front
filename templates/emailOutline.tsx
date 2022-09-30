@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import Image from "next/image";
 
 const topContainerStyle = css`
   display: flex;
@@ -13,7 +14,8 @@ const fromStyle = css`
   background: #fff;
   white-space: nowrap;
   width: 150px;
-  text-align: center;
+  text-align: left;
+  margin-left: 10px;
   font-weight: bold;
 `;
 
@@ -26,11 +28,13 @@ const titleStyle = css`
 
 const textStyle = css`
   background: #fff;
+  color: gray;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 300px;
   text-align: left;
+  margin-left: 10px;
 `;
 
 const receptionTimeStyle = css`
@@ -50,9 +54,12 @@ type Props = {
 const EmailOutline = (props: Props) => {
   return (
     <div css={topContainerStyle}>
+      <div style={{ marginLeft: "10px" }}>
+        <Image src="/abatar.png" alt="abata" width={40} height={40} />
+      </div>
       <p css={fromStyle}>{props.from}</p>
       <p css={titleStyle}>{props.title}</p>
-      <p css={textStyle}>{props.text}</p>
+      <p css={textStyle}>{"- " + props.text}</p>
       <p css={receptionTimeStyle}>{props.receptionTime}</p>
     </div>
   );
