@@ -111,8 +111,6 @@ const Home = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [currentPage, setPage] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
-  const [pageStart, setPageStart] = useState<number>(0);
-  const [pageEnd, setPageEnd] = useState<number>(0);
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
