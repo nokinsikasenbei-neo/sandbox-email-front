@@ -5,6 +5,7 @@ class Email {
   senderIconUrl?: string = "";
   body: string = "";
   receptionTime: string = "";
+  read: boolean = false;
 }
 
 export default Email;
