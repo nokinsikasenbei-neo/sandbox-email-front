@@ -112,14 +112,19 @@ const Home = () => {
   const [currentPage, setPage] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
+  const [dangerUrls, setDangerUrls] = useState<string[]>([]);
 
   useEffect(() => {
     emailHashMap.set("receive", setupTestData(70));
     emailHashMap.set("send", setupTestData(5));
 
     setEmails(getEmails(menu));
+  }, [menu]);
+
+  useEffect(() => {
     setHasNextPage(getHasNextPage(emails.length, currentPage));
-  }, [emails, menu, currentPage]);
+    setDangerUrls(["https://example.com", "https://hogehuga.com"]);
+  }, [emails, currentPage]);
 
   return (
     <div id="root" css={topContainerStyle}>
@@ -193,10 +198,8 @@ const Home = () => {
       {emails.length > 0 ? (
         <EmailDetail
           key={1}
-          title={emails[currentIndex].subject + currentIndex}
-          from={emails[currentIndex].senderName}
-          body={emails[currentIndex].body}
-          receptionTime={emails[currentIndex].receptionTime}
+          email={emails[currentIndex]}
+          dangerUrls={dangerUrls}
         />
       ) : undefined}
       <Modal

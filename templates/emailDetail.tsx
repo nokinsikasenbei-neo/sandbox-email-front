@@ -1,5 +1,8 @@
 import { css } from "@emotion/react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import Email from "../models/email";
+import utils from "../templates/utils";
 
 const topContainerStyle = css`
   background-color: #fff;
@@ -29,109 +32,79 @@ const dangerUrlStyle = css`
 `;
 
 type Props = {
-  title: string;
-  from: string;
-  body: string;
-  receptionTime: string;
+  email: Email;
+  dangerUrls: string[];
 };
 
-class TextObj {
+const getSplitBodyText = (body: string, urls: string[]): string[] => {
+  let splitTextList: string[] = [];
+  let replacedBody = utils.replaceNewLineCode(body);
+  const textList = utils.splitWithKey(replacedBody, "<br/>");
+
+  splitTextList = textList;
+
+  for (let i = 0; i < urls.length; i++) {
+    splitTextList = utils.splitStringListWithKey(splitTextList, urls[i]);
+  }
+
+  return splitTextList;
+};
+
+class TextBlock {
   v: string = "";
   isDanger: boolean = false;
 }
 
+const createTextBlocks = (textList: string[], urls: string[]): TextBlock[] => {
+  let blocks: TextBlock[] = [];
+
+  for (let i = 0; i < textList.length; i++) {
+    let block = new TextBlock();
+
+    for (let j = 0; j < urls.length; j++) {
+      if (textList[i] == urls[j]) {
+        block.isDanger = true;
+      }
+    }
+
+    block.v = textList[i];
+
+    blocks.push(block);
+  }
+
+  return blocks;
+};
+
 const EmailDetail = (props: Props) => {
-  let textObjs: TextObj[] = [];
-
-  const renderBody = (body: string, url: string) => {
-    let replacedBody = replaceNewLineCode(body);
-    let testUrls = ["https://example.com", "https://hogehuga.com"];
-
-    for (let i = 0; i < testUrls.length; i++) {
-      if (i == 0) {
-        convertTextToHTML(replacedBody, testUrls[i], i, 0);
-        break;
-      }
-
-      for (let j = 0; j < textObjs.length; j++) {
-        convertTextToHTML(textObjs[j].v, testUrls[i], i, j);
-      }
-    }
-
-    return (
-      <div css={bodyContainerStyle}>
-        {textObjs.map((obj: TextObj, i: number) => {
-          return (
-            <div key={i}>
-              {obj.v.split("<br />").map((v: string, i: number) => {
-                return v == "<br />" ? (
-                  <br />
-                ) : obj.isDanger ? (
-                  <p css={dangerUrlStyle}>{v}</p>
-                ) : (
-                  <p>{v}</p>
-                );
-              })}
-            </div>
-          );
-        })}
-        ;
-      </div>
-    );
-  };
-
-  const replaceNewLineCode = (text: string): string => {
-    return text.replace(/\\r?\\n/g, "<br />");
-  };
-
-  const convertTextToHTML = (
-    text: string,
-    url: string,
-    i: number,
-    j: number
-  ) => {
-    const pos = text.indexOf(url, 0);
-    if (pos == -1) {
-      let obj = new TextObj();
-      obj.v = text;
-      obj.isDanger = false;
-      textObjs.push(obj);
-      return;
-    }
-
-    let front = new TextObj();
-    front.v = text.substring(0, pos);
-    front.isDanger = false;
-
-    let middle = new TextObj();
-    middle.v = text.substring(pos, pos + url.length);
-    middle.isDanger = true;
-
-    if (i == 0) {
-      textObjs.push(front);
-      textObjs.push(middle);
-    } else {
-      textObjs.splice(j, 1);
-      textObjs.splice(j, 0, front);
-      textObjs.splice(j + 1, 0, middle);
-    }
-
-    let back = text.substring(pos + url.length, text.length);
-    convertTextToHTML(back, url, i, j);
-  };
+  const dangerUrls = props.dangerUrls;
+  const { subject, senderName, senderAddr, senderIconUrl, body } = props.email;
+  const textList = getSplitBodyText(body, dangerUrls);
+  const blocks = createTextBlocks(textList, dangerUrls);
 
   return (
     <div css={topContainerStyle}>
-      <h1 css={titleStyle}>{props.title}</h1>
+      <h1 css={titleStyle}>{subject}</h1>
       <div css={senderInfoContainerStyle}>
         <div>
-          <Image src="/abatar.png" alt="abata" width={40} height={40} />
+          <Image src="/abatar.png" alt="abatar" width={40} height={40} />
         </div>
         <div style={{ marginLeft: "10px", fontWeight: "bold" }}>
-          <text>Tomoya Suzuki ({props.from})</text>
+          {senderName} ({senderAddr})
         </div>
       </div>
-      {renderBody(props.body, "https://example.com")}
+      <div css={bodyContainerStyle}>
+        {blocks.map((block: TextBlock, i: number) => {
+          return block.v == "<br/>" ? (
+            <br key={i} />
+          ) : block.isDanger ? (
+            <span key={i} css={dangerUrlStyle}>
+              {block.v}
+            </span>
+          ) : (
+            block.v
+          );
+        })}
+      </div>
     </div>
   );
 };
