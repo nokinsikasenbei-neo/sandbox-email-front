@@ -1,5 +1,6 @@
 import EmailOutline from "../templates/emailOutline";
 import { css } from "@emotion/react";
+import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import SideBar from "../templates/sidebar";
 import EmailDetail from "../templates/emailDetail";
 import setupTestData from "../testdata/testdata";
@@ -17,41 +18,110 @@ const emailOutlineStyle = css`
   margin-top: 20px;
 `;
 
-const modalStyle = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    backgroundColor: "rgba(0,0,0,0.85)",
-  },
-  content: {
-    position: "absolute",
-    top: "5rem",
-    left: "5rem",
-    right: "5rem",
-    bottom: "5rem",
-    backgroundColor: "paleturquoise",
-    borderRadius: "1rem",
-    padding: "1.5rem",
-  },
-};
+const outlineMenu = css`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 5px;
+`;
 
+const pagerContainer = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const pageCount = css`
+  width: 150px;
+  text-align: right;
+  margin-right: 10px;
+`;
+
+const pageCountText = css`
+  font-size: 17px;
+  color: #7a7a7a;
+  height: 25px;
+`;
+
+const leftIconStyle = css`
+  margin-right: 30px;
+  size: 20px;
+`;
+
+const lightLeftIcon = css`
+  margin-right: 30px;
+  size: 20px;
+  color: gray;
+  pointer-events: none;
+`;
+
+const rightIconStyle = css`
+  margin-right: 10px;
+  size: 20px;
+`;
+
+const lightRightIcon = css`
+  margin-right: 10px;
+  size: 20px;
+  color: gray;
+  pointer-events: none;
+`;
+
+let perPageEmail = 15;
 let emailHashMap = new Map<string, Email[]>();
 
 Modal.setAppElement("#root");
 
+const calcPageStart = (page: number): number => {
+  return page * perPageEmail + 1;
+};
+
+const calcPageEnd = (page: number, total: number) => {
+  if (total < perPageEmail) return total;
+
+  if ((page + 1) * perPageEmail > total) return total;
+
+  return (page + 1) * perPageEmail;
+};
+
+const getEmails = (key: string): Email[] => {
+  const emails = emailHashMap.get(key);
+  if (emails == undefined) {
+    return [];
+  }
+
+  return emails;
+};
+
+const getCurrentPageEmailLength = (total: number, page: number) => {
+  if (total < perPageEmail) {
+    return total;
+  }
+
+  return total - (page + 1) * perPageEmail;
+};
+
+const getHasNextPage = (total: number, page: number): boolean => {
+  return total > calcPageEnd(page, total);
+};
+
 const Home = () => {
-  const [emails, setEmails] = useState<Email[] | undefined>(undefined);
+  const [emails, setEmails] = useState<Email[]>([]);
   const [menu, setMenu] = useState<string>("receive");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentPage, setPage] = useState<number>(0);
+  const [hasNextPage, setHasNextPage] = useState<boolean>(false);
+  const [pageStart, setPageStart] = useState<number>(0);
+  const [pageEnd, setPageEnd] = useState<number>(0);
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    emailHashMap.set("receive", setupTestData(10));
+    emailHashMap.set("receive", setupTestData(70));
     emailHashMap.set("send", setupTestData(5));
 
-    setEmails(emailHashMap.get(menu));
-  }, [emails, menu]);
+    setEmails(getEmails(menu));
+    setHasNextPage(getHasNextPage(emails.length, currentPage));
+  }, [emails, menu, currentPage]);
 
   return (
     <div id="root" css={topContainerStyle}>
@@ -63,39 +133,74 @@ const Home = () => {
         onClickReceiveMenu={() => {
           if (menu != "receive") {
             setMenu("receive");
-            setEmails(emailHashMap.get("receive"));
+            setEmails(getEmails("receive"));
           }
         }}
         onClickSendMenu={() => {
           if (menu != "send") {
             setMenu("send");
-            setEmails(emailHashMap.get("send"));
+            setEmails(getEmails("send"));
           }
         }}
       />
       <div css={emailOutlineStyle}>
-        {emails?.map((email: Email, i: number) => {
-          return (
-            <EmailOutline
-              key={i}
-              from={email.senderName}
-              title={email.subject}
-              text={email.body}
-              receptionTime={email.receptionTime}
-              read={email.read}
-              onClick={() => {
-                setCurrentIndex(i);
-              }}
-            />
-          );
-        })}
+        <div css={outlineMenu}>
+          <div css={pagerContainer}>
+            <div css={pageCount}>
+              <text css={pageCountText}>
+                {calcPageStart(currentPage) +
+                  " - " +
+                  calcPageEnd(currentPage, emails.length) +
+                  " / "}
+              </text>
+              <text css={pageCountText}>{emails.length}</text>
+            </div>
+            <div>
+              <AiOutlineArrowLeft
+                css={currentPage == 0 ? lightLeftIcon : leftIconStyle}
+                onClick={() => {
+                  setPage(currentPage - 1);
+                }}
+              />
+              <AiOutlineArrowRight
+                css={hasNextPage ? rightIconStyle : lightRightIcon}
+                onClick={() => {
+                  setPage(currentPage + 1);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        {emails
+          .slice(
+            calcPageStart(currentPage) - 1,
+            calcPageStart(currentPage) - 1 + perPageEmail
+          )
+          .map((email: Email, i: number) => {
+            return (
+              <EmailOutline
+                key={i}
+                from={email.senderName}
+                title={email.subject}
+                text={email.body}
+                receptionTime={email.receptionTime}
+                read={email.read}
+                onClick={() => {
+                  setCurrentIndex(i);
+                }}
+              />
+            );
+          })}
       </div>
-      <EmailDetail
-        title={emails ? emails[currentIndex].subject + currentIndex : ""}
-        from={emails ? emails[currentIndex].senderName : ""}
-        body={emails ? emails[currentIndex].body : ""}
-        receptionTime={emails ? emails[currentIndex].receptionTime : ""}
-      />
+      {emails.length > 0 ? (
+        <EmailDetail
+          key={1}
+          title={emails[currentIndex].subject + currentIndex}
+          from={emails[currentIndex].senderName}
+          body={emails[currentIndex].body}
+          receptionTime={emails[currentIndex].receptionTime}
+        />
+      ) : undefined}
       <Modal
         isOpen={modalIsOpen}
         style={{
