@@ -37,6 +37,10 @@ const textStyle = css`
   margin-left: 10px;
 `;
 
+const imageStyle = css`
+  margin-left: 10px;
+`;
+
 const receptionTimeStyle = css`
   background: #fff;
   white-space: nowrap;
@@ -55,7 +59,7 @@ type Props = {
 const EmailOutline = (props: Props) => {
   return (
     <div css={topContainerStyle} onClick={props.onClick}>
-      <div style={{ marginLeft: "10px" }}>
+      <div css={imageStyle}>
         <Image src="/abatar.png" alt="abata" width={40} height={40} />
       </div>
       <p css={fromStyle}>{props.from}</p>

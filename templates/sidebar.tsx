@@ -46,6 +46,20 @@ const sideContentStyle = css`
   width: 200px;
 `;
 
+const sideBarContentStyle = css`
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  margin-top: 10px;
+  margin-left: -5px;
+`;
+
+const titleStyle = css`
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: 10px;
+`;
+
 const logoStyle = css`
   width: 30px;
   height: 30px;
@@ -61,39 +75,27 @@ const iconStyle = css`
   margin-bottom: 5px;
 `;
 
+const menuTextStyle = css`
+  font-size: 15px;
+`;
+
 const SideBar = () => {
   return (
     <div css={sideBarStyle}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "left",
-          alignItems: "center",
-          marginTop: "10px",
-          marginLeft: "-5px",
-        }}
-      >
+      <div css={sideBarContentStyle}>
         <FiCodesandbox css={logoStyle} />
-        <text
-          style={{
-            fontSize: "18px",
-            fontWeight: "bold",
-            marginLeft: "10px ",
-          }}
-        >
-          Sandbox Email
-        </text>
+        <text css={titleStyle}>Sandbox Email</text>
       </div>
       <button css={createEmailButtonStyle}>
         <BsPencilFill css={pencilIconStyle} /> 作成
       </button>
       <div css={sideContentStyle}>
         <MdOutlineEmail css={iconStyle} />
-        <text style={{ fontSize: "15px" }}>受信トレイ</text>
+        <text css={menuTextStyle}>受信トレイ</text>
       </div>
       <div css={sideContentStyle}>
         <SiMinutemailer css={iconStyle} />
-        <text style={{ fontSize: "15px" }}>送信済み</text>
+        <text css={menuTextStyle}>送信済み</text>
       </div>
     </div>
   );
