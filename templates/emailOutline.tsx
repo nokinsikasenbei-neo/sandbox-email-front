@@ -23,12 +23,14 @@ const readStyle = css`
 `;
 
 const fromStyle = css`
-  background: inherit;
   white-space: nowrap;
   width: 150px;
   text-align: left;
   margin-left: 10px;
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const titleStyle = css`
@@ -36,6 +38,10 @@ const titleStyle = css`
   white-space: nowrap;
   width: 250px;
   text-align: left;
+  padding-left: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const textStyle = css`
