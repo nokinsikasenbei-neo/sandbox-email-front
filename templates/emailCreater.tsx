@@ -103,6 +103,10 @@ const sendButotn = css`
   margin-bottom: 15px;
   margin-right: 10px;
   border: none;
+
+  &:hover {
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.45);
+  }
 `;
 
 type Props = {

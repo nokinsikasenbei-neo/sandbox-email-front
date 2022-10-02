@@ -9,7 +9,7 @@ import Modal from "react-modal";
 import EmailCreater from "../templates/emailCreater";
 
 const topContainerStyle = css`
-  background-color: wheat;
+  background-color: #ecf0f0;
   display: flex;
 `;
 
@@ -36,24 +36,41 @@ const modalStyle = {
   },
 };
 
-let testData = setupTestData(14);
+let emailHashMap = new Map<string, Email[]>();
 
 Modal.setAppElement("#root");
 
 const Home = () => {
   const [emails, setEmails] = useState<Email[] | undefined>(undefined);
+  const [menu, setMenu] = useState<string>("receive");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    setEmails(testData);
-  }, [emails]);
+    emailHashMap.set("receive", setupTestData(10));
+    emailHashMap.set("send", setupTestData(5));
+
+    setEmails(emailHashMap.get(menu));
+  }, [emails, menu]);
 
   return (
     <div id="root" css={topContainerStyle}>
       <SideBar
+        currentMenu={menu}
         onClickCreateButton={() => {
           setIsOpen(true);
+        }}
+        onClickReceiveMenu={() => {
+          if (menu != "receive") {
+            setMenu("receive");
+            setEmails(emailHashMap.get("receive"));
+          }
+        }}
+        onClickSendMenu={() => {
+          if (menu != "send") {
+            setMenu("send");
+            setEmails(emailHashMap.get("send"));
+          }
         }}
       />
       <div css={emailOutlineStyle}>
@@ -73,10 +90,10 @@ const Home = () => {
         })}
       </div>
       <EmailDetail
-        title={testData[currentIndex].subject + currentIndex}
-        from={testData[currentIndex].senderName}
-        body={testData[currentIndex].body}
-        receptionTime={testData[currentIndex].receptionTime}
+        title={emails ? emails[currentIndex].subject + currentIndex : ""}
+        from={emails ? emails[currentIndex].senderName : ""}
+        body={emails ? emails[currentIndex].body : ""}
+        receptionTime={emails ? emails[currentIndex].receptionTime : ""}
       />
       <Modal
         isOpen={modalIsOpen}

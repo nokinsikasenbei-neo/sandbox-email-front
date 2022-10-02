@@ -1,13 +1,13 @@
 import { css } from "@emotion/react";
-import { MdEmail, MdOutlineEmail } from "react-icons/md";
-import { SiMinutemailer } from "react-icons/si";
+import { AiFillMail } from "react-icons/ai";
+import { IoSendSharp } from "react-icons/io5";
 import { BsPencilFill } from "react-icons/bs";
 import { FiCodesandbox } from "react-icons/fi";
 
 const createEmailButtonStyle = css`
   width: 120px;
   height: 60px;
-  background: #c2e7ff;
+  background: #d3e3fd;
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -21,7 +21,7 @@ const createEmailButtonStyle = css`
   font-weight: 500;
 
   &:hover {
-    box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.65);
+    box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.45);
   }
 `;
 
@@ -43,7 +43,20 @@ const sideBarStyle = css`
 const sideContentStyle = css`
   display: flex;
   align-items: center;
-  width: 200px;
+  width: 180px;
+  border-radius: 0px 20px 20px 0px;
+
+  &:hover {
+    background-color: #ecf0f0;
+  }
+`;
+
+const currentSideContent = css`
+  display: flex;
+  align-items: center;
+  width: 180px;
+  border-radius: 0px 20px 20px 0px;
+  background-color: #d3e3fd;
 `;
 
 const sideBarContentStyle = css`
@@ -56,7 +69,7 @@ const sideBarContentStyle = css`
 
 const titleStyle = css`
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 500;
   margin-left: 10px;
 `;
 
@@ -67,20 +80,24 @@ const logoStyle = css`
 `;
 
 const iconStyle = css`
-  width: 25px;
-  height: 25px;
   margin-left: 10px;
   margin-top: 10px;
   margin-right: 5px;
   margin-bottom: 5px;
+  color: gray;
 `;
 
 const menuTextStyle = css`
   font-size: 15px;
+  font-weight: 500;
+  margin-left: 10px;
 `;
 
 type Props = {
+  currentMenu: string;
   onClickCreateButton: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onClickReceiveMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onClickSendMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
 };
 
 const SideBar = (props: Props) => {
@@ -93,12 +110,24 @@ const SideBar = (props: Props) => {
       <button css={createEmailButtonStyle} onClick={props.onClickCreateButton}>
         <BsPencilFill css={pencilIconStyle} /> 作成
       </button>
-      <div css={sideContentStyle}>
-        <MdOutlineEmail css={iconStyle} />
+      <div
+        css={
+          props.currentMenu == "receive" ? currentSideContent : sideContentStyle
+        }
+        onClick={props.onClickReceiveMenu}
+      >
+        <AiFillMail size="1.4em" css={iconStyle} color="gray" />
         <text css={menuTextStyle}>受信トレイ</text>
       </div>
-      <div css={sideContentStyle}>
-        <SiMinutemailer css={iconStyle} />
+      <div
+        css={
+          props.currentMenu == "send" ? currentSideContent : sideContentStyle
+        }
+        onClick={(event) => {
+          props.onClickSendMenu(event);
+        }}
+      >
+        <IoSendSharp size="1.4em" css={iconStyle} />
         <text css={menuTextStyle}>送信済み</text>
       </div>
     </div>
