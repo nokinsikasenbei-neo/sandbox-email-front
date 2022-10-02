@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { MdEmail } from "react-icons/md";
+import { MdEmail, MdOutlineEmail } from "react-icons/md";
 import { SiMinutemailer } from "react-icons/si";
 import { BsPencilFill } from "react-icons/bs";
 import { FiCodesandbox } from "react-icons/fi";
@@ -88,7 +88,7 @@ const SideBar = () => {
         <BsPencilFill css={pencilIconStyle} /> 作成
       </button>
       <div css={sideContentStyle}>
-        <MdEmail css={iconStyle} />
+        <MdOutlineEmail css={iconStyle} />
         <text style={{ fontSize: "15px" }}>受信トレイ</text>
       </div>
       <div css={sideContentStyle}>

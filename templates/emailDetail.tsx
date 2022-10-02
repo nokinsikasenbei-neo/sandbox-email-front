@@ -45,8 +45,18 @@ const EmailDetail = (props: Props) => {
 
   const renderBody = (body: string, url: string) => {
     let replacedBody = replaceNewLineCode(body);
-    console.log(replacedBody);
-    convertTextToHTML(replacedBody, url);
+    let testUrls = ["https://example.com", "https://hogehuga.com"];
+
+    for (let i = 0; i < testUrls.length; i++) {
+      if (i == 0) {
+        convertTextToHTML(replacedBody, testUrls[i], i, 0);
+        break;
+      }
+
+      for (let j = 0; j < textObjs.length; j++) {
+        convertTextToHTML(textObjs[j].v, testUrls[i], i, j);
+      }
+    }
 
     return (
       <div css={bodyContainerStyle}>
@@ -54,7 +64,6 @@ const EmailDetail = (props: Props) => {
           return (
             <div key={i}>
               {obj.v.split("<br />").map((v: string, i: number) => {
-                console.log(v);
                 return v == "<br />" ? (
                   <br />
                 ) : obj.isDanger ? (
@@ -75,7 +84,12 @@ const EmailDetail = (props: Props) => {
     return text.replace(/\\r?\\n/g, "<br />");
   };
 
-  const convertTextToHTML = (text: string, url: string) => {
+  const convertTextToHTML = (
+    text: string,
+    url: string,
+    i: number,
+    j: number
+  ) => {
     const pos = text.indexOf(url, 0);
     if (pos == -1) {
       let obj = new TextObj();
@@ -93,11 +107,17 @@ const EmailDetail = (props: Props) => {
     middle.v = text.substring(pos, pos + url.length);
     middle.isDanger = true;
 
-    textObjs.push(front);
-    textObjs.push(middle);
+    if (i == 0) {
+      textObjs.push(front);
+      textObjs.push(middle);
+    } else {
+      textObjs.splice(j, 1);
+      textObjs.splice(j, 0, front);
+      textObjs.splice(j + 1, 0, middle);
+    }
 
     let back = text.substring(pos + url.length, text.length);
-    convertTextToHTML(back, url);
+    convertTextToHTML(back, url, i, j);
   };
 
   return (
