@@ -7,7 +7,7 @@ import { FiCodesandbox } from "react-icons/fi";
 const createEmailButtonStyle = css`
   width: 120px;
   height: 60px;
-  background: #87cefa;
+  background: #c2e7ff;
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@ const createEmailButtonStyle = css`
   margin-top: 20px;
   margin-left: 10px;
   margin-bottom: 20px;
-  font-weight: bold;
+  font-weight: 500;
 
   &:hover {
     box-shadow: 1px 1px 12px rgba(0, 0, 0, 0.65);
@@ -79,14 +79,18 @@ const menuTextStyle = css`
   font-size: 15px;
 `;
 
-const SideBar = () => {
+type Props = {
+  onClickCreateButton: (event: React.MouseEvent<HTMLButtonElement>) => void;
+};
+
+const SideBar = (props: Props) => {
   return (
     <div css={sideBarStyle}>
       <div css={sideBarContentStyle}>
         <FiCodesandbox css={logoStyle} />
         <text css={titleStyle}>Sandbox Email</text>
       </div>
-      <button css={createEmailButtonStyle}>
+      <button css={createEmailButtonStyle} onClick={props.onClickCreateButton}>
         <BsPencilFill css={pencilIconStyle} /> 作成
       </button>
       <div css={sideContentStyle}>
