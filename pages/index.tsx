@@ -82,6 +82,7 @@ const Home = () => {
               title={email.subject}
               text={email.body}
               receptionTime={email.receptionTime}
+              read={email.read}
               onClick={() => {
                 setCurrentIndex(i);
               }}
