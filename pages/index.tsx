@@ -4,6 +4,7 @@ import SideBar from "../templates/sidebar";
 import EmailDetail from "../templates/emailDetail";
 import setupTestData from "../testdata/testdata";
 import Email from "../models/email";
+import { useState } from "react";
 
 const topContainerStyle = css`
   background-color: wheat;
@@ -17,6 +18,8 @@ const emailOutlineStyle = css`
 let testData = setupTestData(14);
 
 const Home = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   return (
     <div css={topContainerStyle}>
       <div style={{ display: "flex" }}>
@@ -30,15 +33,18 @@ const Home = () => {
                 title={email.subject}
                 text={email.body}
                 receptionTime={email.receptionTime}
+                onClick={() => {
+                  setCurrentIndex(i);
+                }}
               />
             );
           })}
         </div>
         <EmailDetail
-          title="Hello👋 This is just a test email !!"
-          from="hugahuga@hoge.com"
-          body="hoge様\r\n\r\n役員会の資料を     お送りいたします。\r\n以下のリンクから資料に アクセスできます。\r\nhttps://example.com\r\n\r\nよろしく  お願いいたします。https://example.com \r\n\r\nhuga\r\n"
-          receptionTime="22:00"
+          title={testData[currentIndex].subject + currentIndex}
+          from={testData[currentIndex].senderName}
+          body={testData[currentIndex].body}
+          receptionTime={testData[currentIndex].receptionTime}
         />
       </div>
     </div>

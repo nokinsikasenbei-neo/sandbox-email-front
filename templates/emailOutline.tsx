@@ -49,11 +49,12 @@ type Props = {
   title: string;
   text: string;
   receptionTime: string;
+  onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 };
 
 const EmailOutline = (props: Props) => {
   return (
-    <div css={topContainerStyle}>
+    <div css={topContainerStyle} onClick={props.onClick}>
       <div style={{ marginLeft: "10px" }}>
         <Image src="/abatar.png" alt="abata" width={40} height={40} />
       </div>
