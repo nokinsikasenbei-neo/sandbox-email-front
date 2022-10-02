@@ -204,7 +204,7 @@ const Home = () => {
         style={{
           overlay: {
             position: "fixed",
-            top: 0,
+            bottom: 0,
             left: 0,
             background: "transparent",
           },
@@ -212,8 +212,9 @@ const Home = () => {
             position: "absolute",
             backgroundColor: "#fff",
             borderRadius: "20px 20px 10px 10px",
-            top: "250px",
-            left: "20px",
+            left: 20,
+            top: "auto",
+            bottom: 15,
             width: "550px",
             height: "550px",
             padding: "0px",
