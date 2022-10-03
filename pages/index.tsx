@@ -67,21 +67,26 @@ const lightRightIcon = css`
   pointer-events: none;
 `;
 
-let perPageEmail = 15;
+const perPageEmail = 15;
 let emailHashMap = new Map<string, Email[]>();
 
 Modal.setAppElement("#root");
+
+const maxEmails = (page: number) => {
+  return (page + 1) * perPageEmail;
+};
 
 const calcPageStart = (page: number): number => {
   return page * perPageEmail + 1;
 };
 
 const calcPageEnd = (page: number, total: number) => {
-  if (total < perPageEmail) return total;
+  // if (total < perPageEmail) return total;
 
-  if ((page + 1) * perPageEmail > total) return total;
+  // if ((page + 1) * perPageEmail > total) return total;
 
-  return (page + 1) * perPageEmail;
+  // return (page + 1) * perPageEmail;
+  return Math.min(maxEmails(page), total);
 };
 
 const getEmails = (key: string): Email[] => {
@@ -91,14 +96,6 @@ const getEmails = (key: string): Email[] => {
   }
 
   return emails;
-};
-
-const getCurrentPageEmailLength = (total: number, page: number) => {
-  if (total < perPageEmail) {
-    return total;
-  }
-
-  return total - (page + 1) * perPageEmail;
 };
 
 const getHasNextPage = (total: number, page: number): boolean => {
@@ -117,13 +114,15 @@ const Home = () => {
   useEffect(() => {
     emailHashMap.set("receive", setupTestData(70));
     emailHashMap.set("send", setupTestData(5));
+    setDangerUrls(["https://example.com", "https://hogehuga.com"]);
+  }, []);
 
+  useEffect(() => {
     setEmails(getEmails(menu));
   }, [menu]);
 
   useEffect(() => {
     setHasNextPage(getHasNextPage(emails.length, currentPage));
-    setDangerUrls(["https://example.com", "https://hogehuga.com"]);
   }, [emails, currentPage]);
 
   return (
