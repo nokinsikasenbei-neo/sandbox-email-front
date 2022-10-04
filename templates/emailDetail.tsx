@@ -29,6 +29,7 @@ const bodyContainerStyle = css`
 const dangerUrlStyle = css`
   color: red;
   font-weight: bold;
+  text-decoration: underline;
 `;
 
 type Props = {
@@ -97,9 +98,9 @@ const EmailDetail = (props: Props) => {
           return block.v == "<br/>" ? (
             <br key={i} />
           ) : block.isDanger ? (
-            <span key={i} css={dangerUrlStyle}>
+            <a key={i} css={dangerUrlStyle} href={block.v}>
               {block.v}
-            </span>
+            </a>
           ) : (
             block.v
           );
