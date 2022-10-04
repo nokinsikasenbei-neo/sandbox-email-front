@@ -34,7 +34,7 @@ function splitStringListWithKey(strList: string[], key: string): string[] {
 }
 
 function replaceNewLineCode(text: string): string {
-  return text.replace(/\\r?\\n/g, "<br/>");
+  return text.replace(/\r?\n/g, "<br/>");
 }
 
 const utils = {

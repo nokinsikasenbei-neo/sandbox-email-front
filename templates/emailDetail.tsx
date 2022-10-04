@@ -78,7 +78,7 @@ const createTextBlocks = (textList: string[], urls: string[]): TextBlock[] => {
 
 const EmailDetail = (props: Props) => {
   const dangerUrls = props.dangerUrls;
-  const { subject, senderName, senderAddr, senderIconUrl, body } = props.email;
+  const { subject, from, body } = props.email;
   const textList = getSplitBodyText(body, dangerUrls);
   const blocks = createTextBlocks(textList, dangerUrls);
 
@@ -89,9 +89,7 @@ const EmailDetail = (props: Props) => {
         <div>
           <Image src="/abatar.png" alt="abatar" width={40} height={40} />
         </div>
-        <div style={{ marginLeft: "10px", fontWeight: "bold" }}>
-          {senderName} ({senderAddr})
-        </div>
+        <div style={{ marginLeft: "10px", fontWeight: "bold" }}>{from}</div>
       </div>
       <div css={bodyContainerStyle}>
         {blocks.map((block: TextBlock, i: number) => {
