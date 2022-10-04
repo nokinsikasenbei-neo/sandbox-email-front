@@ -8,6 +8,7 @@ import Email from "../models/email";
 import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import EmailCreater from "../templates/emailCreater";
+import Service from "../services/services";
 
 const topContainerStyle = css`
   background-color: #ecf0f0;
@@ -81,15 +82,10 @@ const calcPageStart = (page: number): number => {
 };
 
 const calcPageEnd = (page: number, total: number) => {
-  // if (total < perPageEmail) return total;
-
-  // if ((page + 1) * perPageEmail > total) return total;
-
-  // return (page + 1) * perPageEmail;
   return Math.min(maxEmails(page), total);
 };
 
-const getEmails = (key: string): Email[] => {
+const setEmailsFromHashMap = (key: string): Email[] => {
   const emails = emailHashMap.get(key);
   if (emails == undefined) {
     return [];
@@ -102,6 +98,8 @@ const getHasNextPage = (total: number, page: number): boolean => {
   return total > calcPageEnd(page, total);
 };
 
+const service = new Service("");
+
 const Home = () => {
   const [emails, setEmails] = useState<Email[]>([]);
   const [menu, setMenu] = useState<string>("receive");
@@ -112,13 +110,18 @@ const Home = () => {
   const [dangerUrls, setDangerUrls] = useState<string[]>([]);
 
   useEffect(() => {
-    emailHashMap.set("receive", setupTestData(70));
-    emailHashMap.set("send", setupTestData(5));
+    const p = service.getEmails();
+
+    p.then((v: Email[]) => {
+      emailHashMap.set("receive", v);
+      emailHashMap.set("send", setupTestData(5));
+    }).catch((e) => console.log(e));
+
     setDangerUrls(["https://example.com", "https://hogehuga.com"]);
   }, []);
 
   useEffect(() => {
-    setEmails(getEmails(menu));
+    setEmails(setEmailsFromHashMap(menu));
   }, [menu]);
 
   useEffect(() => {
@@ -135,13 +138,13 @@ const Home = () => {
         onClickReceiveMenu={() => {
           if (menu != "receive") {
             setMenu("receive");
-            setEmails(getEmails("receive"));
+            setEmails(setEmailsFromHashMap("receive"));
           }
         }}
         onClickSendMenu={() => {
           if (menu != "send") {
             setMenu("send");
-            setEmails(getEmails("send"));
+            setEmails(setEmailsFromHashMap("send"));
           }
         }}
       />
@@ -182,11 +185,10 @@ const Home = () => {
             return (
               <EmailOutline
                 key={i}
-                from={email.senderName}
-                title={email.subject}
-                text={email.body}
-                receptionTime={email.receptionTime}
-                read={email.read}
+                from={email.from}
+                subject={email.subject}
+                body={email.body}
+                date={email.date}
                 onClick={() => {
                   setCurrentIndex(i);
                 }}
