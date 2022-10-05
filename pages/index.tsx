@@ -69,7 +69,6 @@ const lightRightIcon = css`
 `;
 
 const perPageEmail = 15;
-let emailHashMap = new Map<string, Email[]>();
 
 Modal.setAppElement("#root");
 
@@ -85,8 +84,11 @@ const calcPageEnd = (page: number, total: number) => {
   return Math.min(maxEmails(page), total);
 };
 
-const setEmailsFromHashMap = (key: string): Email[] => {
-  const emails = emailHashMap.get(key);
+const setEmailsFromHashMap = (
+  key: string,
+  hashmap: Map<string, Email[]>
+): Email[] => {
+  const emails = hashmap.get(key);
   if (emails == undefined) {
     return [];
   }
@@ -98,35 +100,37 @@ const getHasNextPage = (total: number, page: number): boolean => {
   return total > calcPageEnd(page, total);
 };
 
-const service = new Service("");
+const service = new Service("http://localhost:8000");
 
 const Home = () => {
-  const [emails, setEmails] = useState<Email[]>([]);
+  const [emailHashMap, setEmailHashMap] = useState<Map<string, Email[]>>(
+    new Map()
+  );
   const [menu, setMenu] = useState<string>("receive");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [currentPage, setPage] = useState<number>(0);
   const [hasNextPage, setHasNextPage] = useState<boolean>(false);
   const [modalIsOpen, setIsOpen] = useState<boolean>(false);
-  const [dangerUrls, setDangerUrls] = useState<string[]>([]);
 
   useEffect(() => {
     const p = service.getEmails();
 
     p.then((v: Email[]) => {
-      emailHashMap.set("receive", v);
-      emailHashMap.set("send", setupTestData(5));
+      let tmpHashMap = new Map();
+      tmpHashMap.set("receive", v);
+      tmpHashMap.set("send", setupTestData(5));
+      setEmailHashMap(tmpHashMap);
     }).catch((e) => console.log(e));
-
-    setDangerUrls(["https://example.com", "https://hogehuga.com"]);
   }, []);
 
   useEffect(() => {
-    setEmails(setEmailsFromHashMap(menu));
-  }, [menu]);
-
-  useEffect(() => {
-    setHasNextPage(getHasNextPage(emails.length, currentPage));
-  }, [emails, currentPage]);
+    setHasNextPage(
+      getHasNextPage(
+        setEmailsFromHashMap(menu, emailHashMap).length,
+        currentPage
+      )
+    );
+  }, [menu, emailHashMap, currentPage]);
 
   return (
     <div id="root" css={topContainerStyle}>
@@ -138,13 +142,13 @@ const Home = () => {
         onClickReceiveMenu={() => {
           if (menu != "receive") {
             setMenu("receive");
-            setEmails(setEmailsFromHashMap("receive"));
+            //setEmails(setEmailsFromHashMap("receive", emailHashMap));
           }
         }}
         onClickSendMenu={() => {
           if (menu != "send") {
             setMenu("send");
-            setEmails(setEmailsFromHashMap("send"));
+            //setEmails(setEmailsFromHashMap("send", emailHashMap));
           }
         }}
       />
@@ -155,10 +159,15 @@ const Home = () => {
               <text css={pageCountText}>
                 {calcPageStart(currentPage) +
                   " - " +
-                  calcPageEnd(currentPage, emails.length) +
+                  calcPageEnd(
+                    currentPage,
+                    setEmailsFromHashMap(menu, emailHashMap).length
+                  ) +
                   " / "}
               </text>
-              <text css={pageCountText}>{emails.length}</text>
+              <text css={pageCountText}>
+                {setEmailsFromHashMap(menu, emailHashMap).length}
+              </text>
             </div>
             <div>
               <AiOutlineArrowLeft
@@ -176,7 +185,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        {emails
+        {setEmailsFromHashMap(menu, emailHashMap)
           .slice(
             calcPageStart(currentPage) - 1,
             calcPageStart(currentPage) - 1 + perPageEmail
@@ -196,11 +205,10 @@ const Home = () => {
             );
           })}
       </div>
-      {emails.length > 0 ? (
+      {setEmailsFromHashMap(menu, emailHashMap).length > 0 ? (
         <EmailDetail
           key={1}
-          email={emails[currentIndex]}
-          dangerUrls={dangerUrls}
+          email={setEmailsFromHashMap(menu, emailHashMap)[currentIndex]}
         />
       ) : undefined}
       <Modal

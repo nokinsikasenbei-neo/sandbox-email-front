@@ -1,3 +1,8 @@
+export class UrlBlock {
+  value: string = "";
+  isDanger: boolean = false;
+}
+
 class Email {
   id: string;
   from: string;
@@ -5,6 +10,7 @@ class Email {
   date: string;
   body: string;
   attachment: string;
+  urlBlocks: UrlBlock[];
 
   constructor(
     id: string,
@@ -12,13 +18,15 @@ class Email {
     subject: string,
     date: string,
     body: string,
-    attachment: string
+    attachment: string,
+    urlBlocks: UrlBlock[]
   ) {
     this.id = id;
     this.from = from;
     this.subject = subject;
     this.body = body;
     this.attachment = attachment;
+    this.urlBlocks = urlBlocks;
 
     const tmpArr: RegExpMatchArray | null = date.match(/..:../);
     if (tmpArr) {

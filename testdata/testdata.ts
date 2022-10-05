@@ -1,4 +1,4 @@
-import Email from "../models/email";
+import Email, { UrlBlock } from "../models/email";
 
 const setupTestData = (num: number) => {
   const testData: Email[] = [];
@@ -10,13 +10,22 @@ const setupTestData = (num: number) => {
       上記のリンクが閲覧出来ない場合は https://hogehuga.com からお願いします。\\r\\n\\r\\n\
       お時間あれば、https://example.com も見て頂けますと幸いです。\\r\\n";
 
+    const blocks: UrlBlock[] = [];
+    for (let i = 0; i < 2; i++) {
+      let b = new UrlBlock();
+      b.value = "http://example.com";
+      b.isDanger = true;
+      blocks.push(b);
+    }
+
     let email = new Email(
       "id",
       "Test Account <test@test.com>",
       "Hello👋 This is just a test email !!!!!!!!!!!!!!",
       "22:00",
       testBody,
-      ""
+      "",
+      blocks
     );
     testData.push(email);
   }

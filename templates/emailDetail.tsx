@@ -1,8 +1,9 @@
 import { css } from "@emotion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Email from "../models/email";
+import Email, { UrlBlock } from "../models/email";
 import utils from "../templates/utils";
+import Service from "../services/services";
 
 const topContainerStyle = css`
   background-color: #fff;
@@ -32,9 +33,31 @@ const dangerUrlStyle = css`
   text-decoration: underline;
 `;
 
+const attachmentContainer = css`
+  display: flex;
+  width: inherit;
+  margin-top: 15px;
+`;
+
+const attachmentBox = css`
+  width: 200px;
+  height: 200px;
+  background-color: #f5f5f5;
+  margin-left: 10px;
+  border-radius: 10px;
+  border: solid;
+  border-width: 0.5px;
+  border-color: gray;
+`;
+
+const attachmentText = css`
+  margin-top: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+`;
+
 type Props = {
   email: Email;
-  dangerUrls: string[];
 };
 
 const getSplitBodyText = (body: string, urls: string[]): string[] => {
@@ -76,20 +99,30 @@ const createTextBlocks = (textList: string[], urls: string[]): TextBlock[] => {
   return blocks;
 };
 
+const getUrlValues = (blocks: UrlBlock[]): string[] => {
+  if (blocks === undefined) return [];
+  if (blocks.length == 0) return [];
+  return blocks.map((v: UrlBlock): string => {
+    return v.value;
+  });
+};
+
 const EmailDetail = (props: Props) => {
-  const dangerUrls = props.dangerUrls;
-  const { subject, from, body } = props.email;
-  const textList = getSplitBodyText(body, dangerUrls);
-  const blocks = createTextBlocks(textList, dangerUrls);
+  const urls: string[] = getUrlValues(props.email.urlBlocks);
+  const textList = getSplitBodyText(props.email.body, urls);
+  const blocks = createTextBlocks(textList, urls);
 
   return (
     <div css={topContainerStyle}>
-      <h1 css={titleStyle}>{subject}</h1>
+      <h1 css={titleStyle}>{props.email.subject}</h1>
       <div css={senderInfoContainerStyle}>
         <div>
           <Image src="/abatar.png" alt="abatar" width={40} height={40} />
         </div>
-        <div style={{ marginLeft: "10px", fontWeight: "bold" }}>{from}</div>
+        <div style={{ marginLeft: "10px", fontWeight: "bold" }}>
+          {props.email.from}
+        </div>
+        <div>{props.email.date}</div>
       </div>
       <div css={bodyContainerStyle}>
         {blocks.map((block: TextBlock, i: number) => {
@@ -103,6 +136,11 @@ const EmailDetail = (props: Props) => {
             block.v
           );
         })}
+      </div>
+      <div css={attachmentContainer}>
+        <div css={attachmentBox}>
+          <p css={attachmentText}>{props.email.attachment}</p>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import Email from "../models/email";
+import Email, { UrlBlock } from "../models/email";
 
 type Response = {
   messages: Email[];
@@ -30,7 +30,8 @@ class Service {
             messages[i]["subject"],
             messages[i]["date"],
             messages[i]["body"],
-            messages[i]["attachment"]
+            messages[i]["attachment"],
+            messages[i]["url_results"] as UrlBlock[]
           )
         );
       }
