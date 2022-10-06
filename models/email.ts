@@ -1,6 +1,6 @@
 export class UrlBlock {
   value: string = "";
-  isDanger: boolean = false;
+  is_danger: boolean = false;
 }
 
 class Email {
@@ -10,7 +10,7 @@ class Email {
   date: string;
   body: string;
   attachment: string;
-  urlBlocks: UrlBlock[];
+  urlBlocks: UrlBlock[] = [];
 
   constructor(
     id: string,

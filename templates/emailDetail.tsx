@@ -33,6 +33,12 @@ const dangerUrlStyle = css`
   text-decoration: underline;
 `;
 
+const safeUrlStyle = css`
+  color: blue;
+  font-weight: bold;
+  text-decoration: underline;
+`;
+
 const attachmentContainer = css`
   display: flex;
   width: inherit;
@@ -48,12 +54,22 @@ const attachmentBox = css`
   border: solid;
   border-width: 0.5px;
   border-color: gray;
+  position: relative;
 `;
 
 const attachmentText = css`
   margin-top: 10px;
   margin-left: 10px;
   margin-right: 10px;
+`;
+
+const attachmentLink = css`
+  position: absolute;
+  display: block;
+  top: 10px;
+  left: 10px;
+  width: 100%;
+  height: 100%;
 `;
 
 type Props = {
@@ -79,24 +95,35 @@ class TextBlock {
   isDanger: boolean = false;
 }
 
-const createTextBlocks = (textList: string[], urls: string[]): TextBlock[] => {
+const checkIsDanger = (str: string, dangerUrlList: UrlBlock[]): boolean => {
+  for (let i = 0; i < dangerUrlList.length; i++) {
+    if (dangerUrlList[i].value == str && dangerUrlList[i].is_danger)
+      return true;
+  }
+  return false;
+};
+
+const createTextBlocks = (
+  textList: string[],
+  ublocks: UrlBlock[]
+): TextBlock[] => {
   let blocks: TextBlock[] = [];
+  let urlsblocks: UrlBlock[] = ublocks ? ublocks : [];
 
   for (let i = 0; i < textList.length; i++) {
     let block = new TextBlock();
 
-    for (let j = 0; j < urls.length; j++) {
-      if (textList[i] == urls[j]) {
-        block.isDanger = true;
-      }
-    }
-
     block.v = textList[i];
+    block.isDanger = checkIsDanger(block.v, urlsblocks);
 
     blocks.push(block);
   }
 
   return blocks;
+};
+
+const isUrl = (str: string): boolean => {
+  return str.indexOf("http", 0) != -1;
 };
 
 const getUrlValues = (blocks: UrlBlock[]): string[] => {
@@ -107,10 +134,14 @@ const getUrlValues = (blocks: UrlBlock[]): string[] => {
   });
 };
 
+const convertFileFormatToPDF = (str: string) => {
+  return str.replace("docx", "pdf");
+};
+
 const EmailDetail = (props: Props) => {
   const urls: string[] = getUrlValues(props.email.urlBlocks);
   const textList = getSplitBodyText(props.email.body, urls);
-  const blocks = createTextBlocks(textList, urls);
+  const blocks = createTextBlocks(textList, props.email.urlBlocks);
 
   return (
     <div css={topContainerStyle}>
@@ -126,22 +157,45 @@ const EmailDetail = (props: Props) => {
       </div>
       <div css={bodyContainerStyle}>
         {blocks.map((block: TextBlock, i: number) => {
-          return block.v == "<br/>" ? (
-            <br key={i} />
-          ) : block.isDanger ? (
-            <a key={i} css={dangerUrlStyle} href={block.v}>
-              {block.v}
-            </a>
-          ) : (
-            block.v
-          );
+          if (block.v == "<br/>") {
+            return <br key={i} />;
+          }
+
+          if (block.isDanger && isUrl(block.v)) {
+            return (
+              <a key={i} css={dangerUrlStyle} href={block.v}>
+                {block.v}
+              </a>
+            );
+          }
+
+          if (!block.isDanger && isUrl(block.v)) {
+            return (
+              <a key={i} css={safeUrlStyle} href={block.v}>
+                {block.v}
+              </a>
+            );
+          }
+
+          return block.v;
         })}
       </div>
-      <div css={attachmentContainer}>
-        <div css={attachmentBox}>
-          <p css={attachmentText}>{props.email.attachment}</p>
+      {props.email.attachment != "" ? (
+        <div css={attachmentContainer}>
+          <div css={attachmentBox}>
+            <a
+              css={attachmentLink}
+              href={
+                "http://localhost:8000/file?name=" +
+                convertFileFormatToPDF(props.email.attachment)
+              }
+              download
+            >
+              {props.email.attachment}
+            </a>
+          </div>
         </div>
-      </div>
+      ) : undefined}
     </div>
   );
 };

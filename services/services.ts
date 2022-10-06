@@ -4,6 +4,22 @@ type Response = {
   messages: Email[];
 };
 
+const createUrlBlocks = (blocks: any[]): UrlBlock[] => {
+  let urlBlocks: UrlBlock[] = [];
+
+  if (blocks === undefined) return [];
+  if (blocks.length == 0) return [];
+
+  for (let i = 0; i < blocks.length; i++) {
+    let newB = new UrlBlock();
+    newB.is_danger = blocks[i]["is_danger"];
+    newB.value = blocks[i]["value"];
+    urlBlocks.push(newB);
+  }
+
+  return urlBlocks;
+};
+
 class Service {
   apiUrl: string;
 
@@ -23,17 +39,17 @@ class Service {
       const messages = json["messages"];
 
       for (let i = 0; i < messages.length; i++) {
-        emails.push(
-          new Email(
-            messages[i]["id"],
-            messages[i]["from"],
-            messages[i]["subject"],
-            messages[i]["date"],
-            messages[i]["body"],
-            messages[i]["attachment"],
-            messages[i]["url_results"] as UrlBlock[]
-          )
+        let email = new Email(
+          messages[i]["id"],
+          messages[i]["from"],
+          messages[i]["subject"],
+          messages[i]["date"],
+          messages[i]["body"],
+          messages[i]["attachment"],
+          messages[i]["url_results"] as UrlBlock[]
         );
+
+        emails.push(email);
       }
 
       return emails;

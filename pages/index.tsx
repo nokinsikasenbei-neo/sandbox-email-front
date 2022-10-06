@@ -69,6 +69,7 @@ const lightRightIcon = css`
 `;
 
 const perPageEmail = 15;
+let emailHashMap = new Map<string, Email[]>();
 
 Modal.setAppElement("#root");
 
@@ -84,11 +85,8 @@ const calcPageEnd = (page: number, total: number) => {
   return Math.min(maxEmails(page), total);
 };
 
-const setEmailsFromHashMap = (
-  key: string,
-  hashmap: Map<string, Email[]>
-): Email[] => {
-  const emails = hashmap.get(key);
+const setEmailsFromHashMap = (key: string): Email[] => {
+  const emails = emailHashMap.get(key);
   if (emails == undefined) {
     return [];
   }
@@ -103,9 +101,7 @@ const getHasNextPage = (total: number, page: number): boolean => {
 const service = new Service("http://localhost:8000");
 
 const Home = () => {
-  const [emailHashMap, setEmailHashMap] = useState<Map<string, Email[]>>(
-    new Map()
-  );
+  const [emails, setEmails] = useState<Email[]>([]);
   const [menu, setMenu] = useState<string>("receive");
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [currentPage, setPage] = useState<number>(0);
@@ -116,21 +112,15 @@ const Home = () => {
     const p = service.getEmails();
 
     p.then((v: Email[]) => {
-      let tmpHashMap = new Map();
-      tmpHashMap.set("receive", v);
-      tmpHashMap.set("send", setupTestData(5));
-      setEmailHashMap(tmpHashMap);
+      emailHashMap.set("receive", v);
+      emailHashMap.set("send", setupTestData(5));
+      setEmails(v);
     }).catch((e) => console.log(e));
-  }, []);
+  }, [emails]);
 
   useEffect(() => {
-    setHasNextPage(
-      getHasNextPage(
-        setEmailsFromHashMap(menu, emailHashMap).length,
-        currentPage
-      )
-    );
-  }, [menu, emailHashMap, currentPage]);
+    setHasNextPage(getHasNextPage(emails ? emails.length : 0, currentPage));
+  }, [menu, emails, currentPage]);
 
   return (
     <div id="root" css={topContainerStyle}>
@@ -159,15 +149,10 @@ const Home = () => {
               <text css={pageCountText}>
                 {calcPageStart(currentPage) +
                   " - " +
-                  calcPageEnd(
-                    currentPage,
-                    setEmailsFromHashMap(menu, emailHashMap).length
-                  ) +
+                  calcPageEnd(currentPage, emails.length) +
                   " / "}
               </text>
-              <text css={pageCountText}>
-                {setEmailsFromHashMap(menu, emailHashMap).length}
-              </text>
+              <text css={pageCountText}>{emails.length}</text>
             </div>
             <div>
               <AiOutlineArrowLeft
@@ -185,7 +170,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        {setEmailsFromHashMap(menu, emailHashMap)
+        {emails
           .slice(
             calcPageStart(currentPage) - 1,
             calcPageStart(currentPage) - 1 + perPageEmail
@@ -205,11 +190,8 @@ const Home = () => {
             );
           })}
       </div>
-      {setEmailsFromHashMap(menu, emailHashMap).length > 0 ? (
-        <EmailDetail
-          key={1}
-          email={setEmailsFromHashMap(menu, emailHashMap)[currentIndex]}
-        />
+      {emails.length > 0 ? (
+        <EmailDetail key={1} email={emails[currentIndex]} />
       ) : undefined}
       <Modal
         isOpen={modalIsOpen}

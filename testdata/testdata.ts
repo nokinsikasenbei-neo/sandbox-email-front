@@ -13,8 +13,14 @@ const setupTestData = (num: number) => {
     const blocks: UrlBlock[] = [];
     for (let i = 0; i < 2; i++) {
       let b = new UrlBlock();
-      b.value = "http://example.com";
-      b.isDanger = true;
+      if (i == 0) {
+        b.value = "http://example.com";
+        b.isDanger = true;
+      } else {
+        b.value = "http://hogehuga.com";
+        b.isDanger = false;
+      }
+
       blocks.push(b);
     }
 
