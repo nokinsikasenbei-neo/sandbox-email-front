@@ -32,7 +32,7 @@ class Service {
     let emails: Email[] = [];
 
     try {
-      const response = await fetch("http://localhost:8000/messages", {
+      const response = await fetch(this.apiUrl + "/messages", {
         method: "GET",
       });
       const json = await response.json();
