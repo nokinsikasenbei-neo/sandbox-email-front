@@ -192,7 +192,9 @@ const Home = () => {
       </div>
       {emails.length > 0 ? (
         <EmailDetail key={1} email={emails[currentIndex]} />
-      ) : undefined}
+      ) : (
+        <p>Loading ...</p>
+      )}
       <Modal
         isOpen={modalIsOpen}
         style={{
